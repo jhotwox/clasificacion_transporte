@@ -41,16 +41,35 @@ def main():
         'Julio': 7, 'Agosto': 8, 'Septiembre': 9, 'Octubre': 10, 'Noviembre': 11, 'Diciembre': 12
     }
     df['Mes'] = df['Mes'].map(meses_map)
+
+    # Variable de clase: 1 si el ingreso por pasaje está por encima de la media global.
+    media_ingresos = df['Ingresos por pasaje (Miles de pesos)'].mean()
+    df['arriba_ganancia_media'] = np.where(
+        df['Ingresos por pasaje (Miles de pesos)'] > media_ingresos,
+        1,
+        0,
+    )
     
-    print(df.head(n=13))  # Print the first 13 rows of the DataFrame to verify the changes
+    print(df[['Año', 'Mes', 'Ingresos por pasaje (Miles de pesos)', 'arriba_ganancia_media']].head(n=13))
+    print(f"Media de ingresos por pasaje: {media_ingresos:.2f}")
     
     # MARK: graficas
     # Dispersion map for 'Pasajeros transportados (Miles de  pasajeros)' vs 'Ingresos por pasaje (Miles de pesos)'
     plt.figure(figsize=(10, 6))
-    plt.scatter(df['Pasajeros transportados (Miles de  pasajeros)'], df['Ingresos por pasaje (Miles de pesos)'])
+    scatter = plt.scatter(
+        df['Pasajeros transportados (Miles de  pasajeros)'],
+        df['Ingresos por pasaje (Miles de pesos)'],
+        c=df['arriba_ganancia_media'],
+        cmap='coolwarm',
+        alpha=0.8,
+        edgecolors='k',
+        linewidths=0.3,
+    )
     plt.xlabel('Pasajeros transportados (Miles de  pasajeros)')
     plt.ylabel('Ingresos por pasaje (Miles de pesos)')
-    plt.title('Dispersion Map')
+    plt.title('Dispersion Map por clase (arriba_ganancia_media)')
+    handles, _ = scatter.legend_elements()
+    plt.legend(handles, ['Debajo o igual a media (0)', 'Arriba de media (1)'], title='Clase')
     plt.show()
 
 if __name__ == "__main__":
